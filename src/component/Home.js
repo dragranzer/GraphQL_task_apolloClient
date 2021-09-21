@@ -53,7 +53,8 @@ function Home () {
     `;
     
     const [list, setList] = useState([])
-    const [getData_qry,{data, loading, error}] = useLazyQuery(GetData)
+    const [getData_qry,{data, loading, error}] = useLazyQuery(GetDataByUserId)
+    const [input, setInput] = useState("")
 
     if(loading){
         return <LoadingSvg/>
@@ -81,13 +82,22 @@ function Home () {
         setList((oldData) => [...oldData, newData])
     }
     const onGetData = () =>{
-        getData_qry()
+        getData_qry({variables : {
+            id : input
+        }})
+
         console.log(data?.anggota)
         // setList(data?.anggota)
       }
+    
+    const onchangeInput = (e) => {
+        setInput(e.target.value)
+    }
     return(
         <div>
             <Header />
+            
+            <input type="text" onChange={onchangeInput} />
             <button onClick={onGetData}>Get Data</button>
             <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} />
             <PassengerInput tambahPengunjung={tambahPengunjung}/>
