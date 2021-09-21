@@ -51,6 +51,17 @@ const GetDataByUserId = gql `
         }
     `;
 
+    const UpdateNama = gql`
+    mutation MyMutation3($id: Int!, $nama: String!) {
+        update_anggota_by_pk(pk_columns: {id: $id}, _set: {nama: $nama}) {
+        id
+        jenis_kelamin
+        nama
+        umur
+        }
+    }
+    `
+
 function Home () {
     
     const [list, setList] = useState([])
@@ -62,14 +73,27 @@ function Home () {
     const [deleteData, {loading : loadingDelete}] = useMutation(DeleteData,{
         refetchQueries: [GetData]
     });
+    const [updateNama, {loading : loadingNama}] = useMutation(UpdateNama,{
+        refetchQueries: [GetData]
+    });
     
-    if(loading && loadingInsert && loadingDelete){
+    if(loading && loadingInsert && loadingDelete && loadingNama){
         return <LoadingSvg/>
     }
 
     if (error){
         console.log("error ",error)
         return null
+    }
+
+    const editNama = user => {
+        const newData = {
+            ...user
+        }
+        updateNama({variables:{
+            id: newData.id,
+            nama: newData.nama
+        }})
     }
 
     const hapusPengunjung = id => {
@@ -109,7 +133,7 @@ function Home () {
             
             {/* <input type="text" onChange={onchangeInput} /> */}
             <button onClick={onGetData}>Get Data</button>
-            <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} />
+            <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} editNama={editNama}/>
             <PassengerInput tambahPengunjung={tambahPengunjung}/>
         </div>
     )
