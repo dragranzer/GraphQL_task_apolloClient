@@ -52,8 +52,8 @@ function Home () {
         }
     `;
     
-    const [data, setData] = useState([])
-    const [getData_qry,{data_qry, loading, error}] = useLazyQuery(GetData)
+    const [list, setList] = useState([])
+    const [getData_qry,{data, loading, error}] = useLazyQuery(GetData)
 
     if(loading){
         return <LoadingSvg/>
@@ -66,7 +66,7 @@ function Home () {
     
 
     const hapusPengunjung = id => {
-        setData((oldData) => [...
+        setList((oldData) => [...
             oldData.filter(item => {
                 return item.id !== id;
             })
@@ -78,18 +78,18 @@ function Home () {
             id: uuidv4(),
             ...newUser
         }
-        setData((oldData) => [...oldData, newData])
+        setList((oldData) => [...oldData, newData])
     }
     const onGetData = () =>{
         getData_qry()
-        console.log(data_qry)
-        // setData(data_qry)
+        console.log(data?.anggota)
+        // setList(data?.anggota)
       }
     return(
         <div>
             <Header />
             <button onClick={onGetData}>Get Data</button>
-            <ListPassenger data={data} hapusPengunjung={hapusPengunjung} />
+            <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} />
             <PassengerInput tambahPengunjung={tambahPengunjung}/>
         </div>
     )
