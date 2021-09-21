@@ -3,30 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import PassengerInput from './PassengerInput';
 import ListPassenger from './ListPassenger';
 import Header from './Header';
-import {gql, useQuery, useLazyQuery} from '@apollo/client';
+import {gql, useQuery, useLazyQuery, useMutation} from '@apollo/client';
 import { useState } from 'react';
 import LoadingSvg from "./LoadingSvg"
-
-const initialValue = [
-    {
-        id: uuidv4(),
-        nama: "Yoga",
-        umur: 22,
-        jenisKelamin: "Pria",
-    },
-    {
-        id: uuidv4(),
-        nama: "Ria",
-        umur: 19,
-        jenisKelamin: "Wanita",
-    },
-    {
-        id: uuidv4(),
-        nama: "Fahmi",
-        umur: 25,
-        jenisKelamin: "Pria",
-    },
-]
 
 const GetData = gql`
     query MyQuery {
@@ -38,10 +17,30 @@ const GetData = gql`
         }
       }      
     `
+const InserData = gql`
+mutation MyMutation($jenis_kelamin: String!, $nama: String! $umur: Int!, $id: Int!) {
+    insert_anggota(objects: {jenis_kelamin: $jenis_kelamin, nama: $nama, umur: $umur, id: $id}) {
+      returning {
+        jenis_kelamin
+        nama
+        umur
+        id
+      }
+    }
+  }
+`
 
-function Home () {
-    
-    const GetDataByUserId = gql `
+const DeleteData = gql`
+mutation MyMutation2($id: Int!) {
+    delete_anggota_by_pk(id: $id) {
+      id
+      jenis_kelamin
+      nama
+      umur
+    }
+  }
+`
+const GetDataByUserId = gql `
         query MyQuery($id: Int!) {
         anggota(where: {id: {_eq: $id}}) {
             nama
@@ -51,12 +50,20 @@ function Home () {
         }
         }
     `;
+
+function Home () {
     
     const [list, setList] = useState([])
-    const [getData_qry,{data, loading, error}] = useLazyQuery(GetDataByUserId)
+    const [getData_qry,{data, loading, error, refetch}] = useLazyQuery(GetData)
     const [input, setInput] = useState("")
-
-    if(loading){
+    const [inserData, {loading:loadingInsert}] = useMutation(InserData, {
+        refetchQueries: [GetData]
+    });
+    const [deleteData, {loading : loadingDelete}] = useMutation(DeleteData,{
+        refetchQueries: [GetData]
+    });
+    
+    if(loading && loadingInsert && loadingDelete){
         return <LoadingSvg/>
     }
 
@@ -64,22 +71,25 @@ function Home () {
         console.log("error ",error)
         return null
     }
-    
 
     const hapusPengunjung = id => {
-        setList((oldData) => [...
-            oldData.filter(item => {
-                return item.id !== id;
-            })
-        ])
+        deleteData({variables :{
+            id:id
+        }})
     }
 
     const tambahPengunjung = newUser => {
+        console.log(newUser.nama)
         const newData = {
-            id: uuidv4(),
             ...newUser
         }
-        setList((oldData) => [...oldData, newData])
+        // console.log(newData)
+        inserData({variables :{
+              id: newData.id,
+              nama: newData.nama,
+              umur: newData.umur,
+              jenis_kelamin: newData.jenisKelamin
+        }})
     }
     const onGetData = () =>{
         getData_qry({variables : {
@@ -97,7 +107,7 @@ function Home () {
         <div>
             <Header />
             
-            <input type="text" onChange={onchangeInput} />
+            {/* <input type="text" onChange={onchangeInput} /> */}
             <button onClick={onGetData}>Get Data</button>
             <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} />
             <PassengerInput tambahPengunjung={tambahPengunjung}/>
