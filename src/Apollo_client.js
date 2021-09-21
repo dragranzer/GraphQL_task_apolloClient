@@ -7,10 +7,10 @@ import {
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: 'https://kampusmerdeka.hasura.app/v1/graphql',
+  uri: 'https://eminent-treefrog-39.hasura.app/v1/graphql',
   cache: new InMemoryCache(),
   headers: {
-      'x-hasura-admin-secret' : 'GJyFmwaJfr1RRinrd2T40xq6njF28njBZ4wb5mrJ5xTVo05p4uHy3iRRK6CpJwOk'
+      'x-hasura-admin-secret' : 'oGzx4jqbIbRAIVGfB5W1FgkXmWkwWJrWwuQx1qeFQTQH13uGkTCNxDEpXHydS3pk'
   }
 });
 
