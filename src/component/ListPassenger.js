@@ -1,8 +1,4 @@
 import ListItem from './ListItem';
-import {gql, useQuery, useLazyQuery} from '@apollo/client'
-import LoadingSvg from "./LoadingSvg"
-import PassengerInput from './PassengerInput';
-import { useState } from 'react';
 
 const ListPassenger = props => {
     console.log(props.data)

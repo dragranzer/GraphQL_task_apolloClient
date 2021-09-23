@@ -1,83 +1,22 @@
-import { Component } from "react";
-import { v4 as uuidv4 } from "uuid";
 import PassengerInput from './PassengerInput';
 import ListPassenger from './ListPassenger';
 import Header from './Header';
-import {gql, useQuery, useLazyQuery, useMutation} from '@apollo/client';
 import { useState } from 'react';
 import LoadingSvg from "./LoadingSvg"
-
-const GetData = gql`
-    query MyQuery {
-        anggota {
-          id
-          jenis_kelamin
-          nama
-          umur
-        }
-      }      
-    `
-const InserData = gql`
-mutation MyMutation($jenis_kelamin: String!, $nama: String! $umur: Int!, $id: Int!) {
-    insert_anggota(objects: {jenis_kelamin: $jenis_kelamin, nama: $nama, umur: $umur, id: $id}) {
-      returning {
-        jenis_kelamin
-        nama
-        umur
-        id
-      }
-    }
-  }
-`
-
-const DeleteData = gql`
-mutation MyMutation2($id: Int!) {
-    delete_anggota_by_pk(id: $id) {
-      id
-      jenis_kelamin
-      nama
-      umur
-    }
-  }
-`
-const GetDataByUserId = gql `
-        query MyQuery($id: Int!) {
-        anggota(where: {id: {_eq: $id}}) {
-            nama
-            umur
-            jenis_kelamin
-            id
-        }
-        }
-    `;
-
-    const UpdateNama = gql`
-    mutation MyMutation3($id: Int!, $nama: String!) {
-        update_anggota_by_pk(pk_columns: {id: $id}, _set: {nama: $nama}) {
-        id
-        jenis_kelamin
-        nama
-        umur
-        }
-    }
-    `
+import useDeleteUser from "../hooks/useDeleteUser";
+import useGetUser from "../hooks/useGetUser";
+import useUpdateUser from "../hooks/useUpdateUser";
+import useInsertUser from "../hooks/useInsertUser";
 
 function Home () {
     
-    const [list, setList] = useState([])
-    const [getData_qry,{data, loading, error, refetch}] = useLazyQuery(GetData)
     const [input, setInput] = useState("")
-    const [inserData, {loading:loadingInsert}] = useMutation(InserData, {
-        refetchQueries: [GetData]
-    });
-    const [deleteData, {loading : loadingDelete}] = useMutation(DeleteData,{
-        refetchQueries: [GetData]
-    });
-    const [updateNama, {loading : loadingNama}] = useMutation(UpdateNama,{
-        refetchQueries: [GetData]
-    });
+    const { anggota, loading, error, subscribeUser, getData_qry } = useGetUser();
+    const { updateNama, loadingUpdate } = useUpdateUser();
+    const { deleteUser, loadingDelete } = useDeleteUser();
+    const { insertUser, loadingInsert } = useInsertUser();
     
-    if(loading && loadingInsert && loadingDelete && loadingNama){
+    if (loading && loadingDelete && loadingUpdate && loadingInsert){
         return <LoadingSvg/>
     }
 
@@ -97,7 +36,7 @@ function Home () {
     }
 
     const hapusPengunjung = id => {
-        deleteData({variables :{
+        deleteUser({variables :{
             id:id
         }})
     }
@@ -108,7 +47,7 @@ function Home () {
             ...newUser
         }
         // console.log(newData)
-        inserData({variables :{
+        insertUser({variables :{
               id: newData.id,
               nama: newData.nama,
               umur: newData.umur,
@@ -119,9 +58,6 @@ function Home () {
         getData_qry({variables : {
             id : input
         }})
-
-        console.log(data?.anggota)
-        // setList(data?.anggota)
       }
     
     const onchangeInput = (e) => {
@@ -133,7 +69,7 @@ function Home () {
             
             {/* <input type="text" onChange={onchangeInput} /> */}
             <button onClick={onGetData}>Get Data</button>
-            <ListPassenger data={data?.anggota} hapusPengunjung={hapusPengunjung} editNama={editNama}/>
+            <ListPassenger data={anggota} hapusPengunjung={hapusPengunjung} editNama={editNama}/>
             <PassengerInput tambahPengunjung={tambahPengunjung}/>
         </div>
     )
