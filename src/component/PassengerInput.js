@@ -72,7 +72,7 @@ function PassengerInput(props) {
     <div>
       <div onSubmit={handleSubmit} style={viewMode}>
         <p>Masukkan ID</p>
-        <input type="text" className="input-text" placeholder="Nama anda ..." value={state.id} name="id" onChange={onChange} />
+        <input type="text" className="input-text" placeholder="ID anda ..." value={state.id} name="id" onChange={onChange} />
         <p>Masukkan Nama Anda</p>
         <input type="text" className="input-text" placeholder="Nama anda ..." value={state.nama} name="nama" onChange={onChange} />
         <p>Masukkan Umur Anda</p>
